@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import AirlineLogo from './AirlineLogo';
+import AirportAnalytics from './AirportAnalytics';
 import { routeMatchesAirline } from '../lib/route';
 
 export default function Panel() {
@@ -111,6 +112,51 @@ export default function Panel() {
   });
 
   return (
+    <AirportPanel
+      airport={airport}
+      routes={routes}
+      filtered={filtered}
+      data={data}
+      airlineFilter={airlineFilter}
+      mapTheme={mapTheme}
+      selectAirport={selectAirport}
+      selectRoute={selectRoute}
+      clearSelection={clearSelection}
+    />
+  );
+}
+
+type AirportPanelProps = {
+  airport: import('../types').Airport;
+  routes: import('../types').Route[];
+  filtered: import('../types').Route[];
+  data: import('../types').Dataset;
+  airlineFilter: string | null;
+  mapTheme: 'dark' | 'light';
+  selectAirport: (iata: string | null) => void;
+  selectRoute: (r: { origin: string; dest: string } | null) => void;
+  clearSelection: () => void;
+};
+
+function AirportPanel({
+  airport,
+  routes,
+  filtered,
+  data,
+  airlineFilter,
+  mapTheme,
+  selectAirport,
+  selectRoute,
+  clearSelection,
+}: AirportPanelProps) {
+  const [tab, setTab] = useState<'routes' | 'analytics'>('routes');
+
+  // Reset tab when airport changes
+  useEffect(() => {
+    setTab('routes');
+  }, [airport.iata]);
+
+  return (
     <PanelShell mapTheme={mapTheme} onClose={clearSelection}>
       <div className="space-y-1">
         <div className="text-xs uppercase tracking-widest text-white/40">Airport</div>
@@ -122,63 +168,88 @@ export default function Panel() {
         <div className="text-xs text-white/40">{airport.city}</div>
       </div>
 
-      <div className="space-y-2 pt-2">
-        <div className="flex items-baseline justify-between gap-2">
-          <div className="text-xs uppercase tracking-widest text-white/40">
-            Destinations{airlineFilter ? ` via ${airlineFilter}` : ''} ({filtered.length})
+      {/* Tab toggle */}
+      <div className="flex items-center gap-1 rounded-xl bg-white/5 p-0.5 mt-3">
+        <TabBtn active={tab === 'routes'} onClick={() => setTab('routes')}>Routes</TabBtn>
+        <TabBtn active={tab === 'analytics'} onClick={() => setTab('analytics')}>Analytics</TabBtn>
+      </div>
+
+      {tab === 'routes' ? (
+        <div className="space-y-2 pt-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="text-xs uppercase tracking-widest text-white/40">
+              Destinations{airlineFilter ? ` via ${airlineFilter}` : ''} ({filtered.length})
+            </div>
+            {airlineFilter && filtered.length < routes.length && (
+              <div className="text-[10px] text-white/30">
+                {routes.length} total
+              </div>
+            )}
           </div>
-          {airlineFilter && filtered.length < routes.length && (
-            <div className="text-[10px] text-white/30">
-              {routes.length} total
+
+          {filtered.length === 0 ? (
+            <div className="py-6 text-center text-sm text-white/30">No routes match these filters</div>
+          ) : (
+            <div className="relative">
+              <ul className="max-h-[50vh] space-y-0.5 overflow-y-auto pr-1">
+                {filtered.map((r) => {
+                  const d = data.airports[r.dest];
+                  if (!d) return null;
+                  return (
+                    <li key={r.dest} className="group relative flex items-stretch">
+                      <button
+                        className="flex flex-1 items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-white/5"
+                        onClick={() => selectRoute({ origin: airport.iata, dest: r.dest })}
+                        title={`View ${airport.iata} → ${r.dest} route`}
+                      >
+                        <span className="flex items-center gap-3 min-w-0">
+                          <span className="font-mono text-white/90">{r.dest}</span>
+                          <span className="text-white/50 truncate" title={d.city}>{d.city}</span>
+                        </span>
+                        <span className="flex items-center gap-1.5 text-xs text-white/30 shrink-0">
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              r.source === 'live' ? 'bg-emerald-400/60' : 'bg-white/20'
+                            }`}
+                          />
+                          {r.airlines.length}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => selectAirport(r.dest)}
+                        className="invisible flex w-7 items-center justify-center rounded-md text-white/40 transition hover:bg-white/5 hover:text-white group-hover:visible"
+                        aria-label={`Explore from ${r.dest}`}
+                        title={`Explore from ${r.dest}`}
+                      >
+                        ↗
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="pointer-events-none absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-black/25 to-transparent" />
             </div>
           )}
         </div>
-
-        {filtered.length === 0 ? (
-          <div className="py-6 text-center text-sm text-white/30">No routes match these filters</div>
-        ) : (
-          <div className="relative">
-            <ul className="max-h-[55vh] space-y-0.5 overflow-y-auto pr-1">
-              {filtered.map((r) => {
-                const d = data.airports[r.dest];
-                if (!d) return null;
-                return (
-                  <li key={r.dest} className="group relative flex items-stretch">
-                    <button
-                      className="flex flex-1 items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-white/5"
-                      onClick={() => selectRoute({ origin: airport.iata, dest: r.dest })}
-                      title={`View ${airport.iata} → ${r.dest} route`}
-                    >
-                      <span className="flex items-center gap-3 min-w-0">
-                        <span className="font-mono text-white/90">{r.dest}</span>
-                        <span className="text-white/50 truncate" title={d.city}>{d.city}</span>
-                      </span>
-                      <span className="flex items-center gap-1.5 text-xs text-white/30 shrink-0">
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            r.source === 'live' ? 'bg-emerald-400/60' : 'bg-white/20'
-                          }`}
-                        />
-                        {r.airlines.length}
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => selectAirport(r.dest)}
-                      className="invisible flex w-7 items-center justify-center rounded-md text-white/40 transition hover:bg-white/5 hover:text-white group-hover:visible"
-                      aria-label={`Explore from ${r.dest}`}
-                      title={`Explore from ${r.dest}`}
-                    >
-                      ↗
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="pointer-events-none absolute bottom-0 inset-x-0 h-8 bg-gradient-to-t from-black/25 to-transparent" />
-          </div>
-        )}
-      </div>
+      ) : (
+        <div className="pt-1">
+          <AirportAnalytics airport={airport} routes={routes} data={data} />
+        </div>
+      )}
     </PanelShell>
+  );
+}
+
+function TabBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+        active ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
