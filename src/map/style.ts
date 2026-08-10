@@ -1,13 +1,11 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
-// Dark theme colors
 const LAND   = '#0e1116';
 const WATER  = '#070a0e';
 const BORDER = '#222a36';
 const LABEL  = '#5b6470';
 const CITY   = '#4a5460';
 
-// Light theme colors
 const LAND_L        = '#E8E2D9';
 const WATER_L       = '#BAD4E8';
 const BORDER_L      = '#C4B5A0';
@@ -16,8 +14,6 @@ const STATE_L       = '#A09080';
 const CITY_L        = '#3D3028';
 const ROAD_HWY_L    = '#D4C4B0';
 const ROAD_PRI_L    = '#DDD6CC';
-
-// Layer factories
 
 
 function cityLabels(color: string, halo: string): StyleSpecification['layers'][0] {
@@ -68,7 +64,6 @@ function townLabels(color: string, halo: string): StyleSpecification['layers'][0
   };
 }
 
-// Light / terrain style
 export const lightMapStyle: StyleSpecification = {
   version: 8,
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
@@ -109,7 +104,6 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // Motorways + trunk roads
     {
       id: 'roads-highway',
       type: 'line',
@@ -124,7 +118,6 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // Primary roads
     {
       id: 'roads-primary',
       type: 'line',
@@ -139,7 +132,6 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // State / province borders (dashed)
     {
       id: 'state-borders',
       type: 'line',
@@ -155,7 +147,6 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // Country borders
     {
       id: 'country-borders',
       type: 'line',
@@ -169,7 +160,6 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // Country labels
     {
       id: 'country-labels',
       type: 'symbol',
@@ -193,7 +183,6 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // State / province labels
     {
       id: 'state-labels',
       type: 'symbol',
@@ -218,15 +207,11 @@ export const lightMapStyle: StyleSpecification = {
       },
     },
 
-    // City labels
     cityLabels(CITY_L, LAND_L),
-
-    // Town labels
     townLabels(CITY_L, LAND_L),
   ],
 };
 
-// Dark style
 export const mapStyle: StyleSpecification = {
   version: 8,
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
@@ -260,7 +245,6 @@ export const mapStyle: StyleSpecification = {
       },
     },
 
-    // Country labels
     {
       id: 'country-labels',
       type: 'symbol',
@@ -284,10 +268,7 @@ export const mapStyle: StyleSpecification = {
       },
     },
 
-    // City labels
     cityLabels(CITY, LAND),
-
-    // Town labels
     townLabels(LABEL, LAND),
   ],
 };

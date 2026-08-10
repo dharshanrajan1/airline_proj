@@ -126,7 +126,6 @@ export default function Filters() {
   return (
     <div className="pointer-events-auto absolute left-4 top-4 flex flex-col gap-2">
       <div className={`flex items-center gap-2 rounded-2xl border border-white/10 ${panelBg} p-1.5 shadow-2xl backdrop-blur-xl`}>
-        {/* Airport search */}
         <div className="relative">
           <input
             value={airportQuery}
@@ -177,7 +176,6 @@ export default function Filters() {
 
         <div className="h-5 w-px bg-white/10" />
 
-        {/* Airline filter */}
         <div className="relative flex items-center">
           {activeAirline && !airlineOpen && (
             <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2">
@@ -248,7 +246,6 @@ export default function Filters() {
 
         <div className="h-5 w-px bg-white/10" />
 
-        {/* Dom/Intl toggle */}
         <div className="flex items-center gap-1 rounded-xl bg-white/5 p-0.5">
           <ToggleBtn active={!domesticOnly && !internationalOnly} onClick={() => { setDomesticOnly(false); setInternationalOnly(false); }}>All</ToggleBtn>
           <ToggleBtn active={domesticOnly} onClick={() => setDomesticOnly(!domesticOnly)}>Dom</ToggleBtn>
@@ -257,7 +254,6 @@ export default function Filters() {
 
         <div className="h-5 w-px bg-white/10" />
 
-        {/* Map theme toggle */}
         <button
           onClick={() => setMapTheme(mapTheme === 'dark' ? 'light' : 'dark')}
           className="rounded-xl px-2.5 py-1 text-xs text-white/50 transition hover:bg-white/10 hover:text-white/90"

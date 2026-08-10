@@ -6,11 +6,9 @@ import { routeMatchesAirline } from '../lib/route';
 const ACCENT: [number, number, number] = [245, 165, 36];
 const WHITE: [number, number, number] = [232, 234, 237];
 const MUTED: [number, number, number] = [155, 166, 179];
-// Darker variants for the light terrain map.
 const WHITE_L: [number, number, number] = [20, 40, 80];
 const MUTED_L: [number, number, number] = [70, 95, 130];
 
-// Airport size tier by route count.
 function airportTier(count: number): 0 | 1 | 2 | 3 {
   if (count >= 120) return 3;
   if (count >= 40) return 2;
@@ -20,7 +18,6 @@ function airportTier(count: number): 0 | 1 | 2 | 3 {
 
 const BASE_RADIUS = [1.8, 2.4, 3.2, 4.5] as const;
 const BASE_ALPHA = [70, 130, 180, 230] as const;
-// Hide tier-0 airports below zoom 3.
 const SMALL_HIDE_ZOOM = 3;
 
 type BuildArgs = {
@@ -128,7 +125,6 @@ export function buildLayers(args: BuildArgs): Layer[] {
 
   const layers: Layer[] = [];
 
-  // Hub outer ring
   if (airlineFilter && hubs.size > 0) {
     layers.push(
       new ScatterplotLayer<Airport>({
@@ -147,7 +143,6 @@ export function buildLayers(args: BuildArgs): Layer[] {
     );
   }
 
-  // Airport dots
   layers.push(
     new ScatterplotLayer<Airport>({
       id: 'airports',
@@ -189,7 +184,6 @@ export function buildLayers(args: BuildArgs): Layer[] {
     }),
   );
 
-  // Arcs
   if (arcs.length > 0) {
     layers.push(
       new ArcLayer<ArcDatum>({

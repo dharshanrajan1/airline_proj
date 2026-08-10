@@ -126,7 +126,11 @@ export default function Panel() {
   );
 }
 
-type AirportPanelProps = {
+function AirportPanel({
+  airport, routes, filtered, data,
+  airlineFilter, mapTheme,
+  selectAirport, selectRoute, clearSelection,
+}: {
   airport: import('../types').Airport;
   routes: import('../types').Route[];
   filtered: import('../types').Route[];
@@ -136,25 +140,9 @@ type AirportPanelProps = {
   selectAirport: (iata: string | null) => void;
   selectRoute: (r: { origin: string; dest: string } | null) => void;
   clearSelection: () => void;
-};
-
-function AirportPanel({
-  airport,
-  routes,
-  filtered,
-  data,
-  airlineFilter,
-  mapTheme,
-  selectAirport,
-  selectRoute,
-  clearSelection,
-}: AirportPanelProps) {
+}) {
   const [tab, setTab] = useState<'routes' | 'analytics'>('routes');
-
-  // Reset tab when airport changes
-  useEffect(() => {
-    setTab('routes');
-  }, [airport.iata]);
+  useEffect(() => { setTab('routes'); }, [airport.iata]);
 
   return (
     <PanelShell mapTheme={mapTheme} onClose={clearSelection}>
@@ -168,7 +156,6 @@ function AirportPanel({
         <div className="text-xs text-white/40">{airport.city}</div>
       </div>
 
-      {/* Tab toggle */}
       <div className="flex items-center gap-1 rounded-xl bg-white/5 p-0.5 mt-3">
         <TabBtn active={tab === 'routes'} onClick={() => setTab('routes')}>Routes</TabBtn>
         <TabBtn active={tab === 'analytics'} onClick={() => setTab('analytics')}>Analytics</TabBtn>
