@@ -1,10 +1,4 @@
-/**
- * Scrapes Wikipedia "Airlines and destinations" tables for each United Airlines hub
- * to build accurate UA route pairs. Outputs public/raw/ua-wiki-routes.json.
- *
- * Run: npm run fetch:ua-wiki
- * Then rebuild data: npm run build:data
- */
+// Scrapes Wikipedia destination tables for United Airlines hubs.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -28,7 +22,7 @@ async function fetchPageHtml(title: string): Promise<string> {
     `&page=${encodeURIComponent(title)}&disablelimitreport=1&disableeditsection=1`;
   const res = await fetch(url, {
     headers: {
-      'User-Agent': 'AirlineRouteExplorer/1.0 (dthiyagarajan6@gatech.edu)',
+      'User-Agent': 'AirlineRouteExplorer/1.0 (student-project)',
     },
   });
   if (!res.ok) throw new Error(`Wikipedia API ${res.status} for "${title}"`);
@@ -44,11 +38,7 @@ async function fetchPageHtml(title: string): Promise<string> {
   return html;
 }
 
-/**
- * Build a lookup from normalized airport name → IATA using airports.json.
- * Wikipedia link `title` attributes use the airport's official name, which
- * matches (or nearly matches) the names in OpenFlights data.
- */
+// Build lookup from normalized airport name to IATA.
 function buildNameMap(airports: Record<string, { name: string }>): Map<string, string> {
   const map = new Map<string, string>();
   for (const [iata, a] of Object.entries(airports)) {
@@ -67,15 +57,7 @@ function normalizeName(s: string): string {
     .trim();
 }
 
-/**
- * Extract United Airlines destination IATAs from a hub airport's Wikipedia HTML.
- *
- * Strategy:
- *   1. Walk <tr> elements sequentially.
- *   2. "United Airlines" (not "United Express") starts a UA block.
- *   3. The block runs through rowspan continuation rows until another airline row appears.
- *   4. From each in-block row, pull `title="…Airport…"` values, normalize, look up in nameMap.
- */
+// Extract UA destination IATAs from Wikipedia HTML.
 function extractUADestinations(
   html: string,
   nameMap: Map<string, string>,
@@ -107,10 +89,7 @@ function extractUADestinations(
 
     if (!inUABlock) continue;
 
-    // Extract from `title="…"` attributes — these are Wikipedia article titles
-    // which correspond to official airport names in our name map.
     for (const [, rawTitle] of tr.matchAll(/title="([^"]+)"/g)) {
-      // Only airport-like titles (skip "United Airlines" itself, footnotes, etc.)
       if (!/airport|aeroporto|aéroport|flughafen|aeropuerto|havalimanı/i.test(rawTitle)) continue;
       const iata = nameMap.get(normalizeName(rawTitle));
       if (iata && iata !== hub) iatas.add(iata);

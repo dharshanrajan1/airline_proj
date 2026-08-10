@@ -96,7 +96,6 @@ export default function Panel() {
     );
   }
 
-  // Airport view
   const airport = data.airports[selectedAirport!];
   const routes = data.routes[selectedAirport!] ?? [];
   if (!airport) return null;
@@ -232,7 +231,7 @@ function PanelShell({
 
   return (
     <div
-      className={`pointer-events-auto absolute right-4 top-4 bottom-4 w-[340px] overflow-hidden rounded-2xl border border-white/10 ${bg} shadow-2xl backdrop-blur-xl transition-all duration-200 ease-out ${
+      className={`pointer-events-auto absolute right-4 top-4 bottom-4 w-[calc(100vw-2rem)] sm:w-[340px] overflow-hidden rounded-2xl border border-white/10 ${bg} shadow-2xl backdrop-blur-xl transition-all duration-200 ease-out ${
         visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-3'
       }`}
     >

@@ -10,8 +10,7 @@ const MUTED: [number, number, number] = [155, 166, 179];
 const WHITE_L: [number, number, number] = [20, 40, 80];
 const MUTED_L: [number, number, number] = [70, 95, 130];
 
-// Size tier by route count — small / medium / large / mega-hub.
-// Buckets chosen from observed distribution (p50=6, p75=16, p90=61).
+// Airport size tier by route count.
 function airportTier(count: number): 0 | 1 | 2 | 3 {
   if (count >= 120) return 3;
   if (count >= 40) return 2;
@@ -21,7 +20,7 @@ function airportTier(count: number): 0 | 1 | 2 | 3 {
 
 const BASE_RADIUS = [1.8, 2.4, 3.2, 4.5] as const;
 const BASE_ALPHA = [70, 130, 180, 230] as const;
-// Below this zoom, hide tier-0 (small, <10 routes) airports so the map breathes.
+// Hide tier-0 airports below zoom 3.
 const SMALL_HIDE_ZOOM = 3;
 
 type BuildArgs = {

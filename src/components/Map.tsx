@@ -51,7 +51,6 @@ export default function Map() {
 
     map.on('zoom', () => setZoom(map.getZoom()));
 
-    // Click on empty space (no airport/arc hit) clears selection.
     map.on('click', (e) => {
       const picked = overlay.pickObject({ x: e.point.x, y: e.point.y, radius: 8 });
       if (!picked) useStore.getState().clearSelection();

@@ -1,23 +1,24 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
-// ── Dark theme ───────────────────────────────────────────────────────────────
+// Dark theme colors
 const LAND   = '#0e1116';
 const WATER  = '#070a0e';
 const BORDER = '#222a36';
 const LABEL  = '#5b6470';
 const CITY   = '#4a5460';
 
-// ── Light / terrain theme ────────────────────────────────────────────────────
+// Light theme colors
 const LAND_L        = '#E8E2D9';
 const WATER_L       = '#BAD4E8';
 const BORDER_L      = '#C4B5A0';
-const LABEL_L       = '#6B5A48';   // country labels
-const STATE_L       = '#A09080';   // state / province labels
-const CITY_L        = '#3D3028';   // city labels
-const ROAD_HWY_L    = '#D4C4B0';   // motorway / trunk
-const ROAD_PRI_L    = '#DDD6CC';   // primary roads
+const LABEL_L       = '#6B5A48';
+const STATE_L       = '#A09080';
+const CITY_L        = '#3D3028';
+const ROAD_HWY_L    = '#D4C4B0';
+const ROAD_PRI_L    = '#DDD6CC';
 
-// ── Shared layer factories ────────────────────────────────────────────────────
+// Layer factories
+
 
 function cityLabels(color: string, halo: string): StyleSpecification['layers'][0] {
   return {
@@ -67,7 +68,7 @@ function townLabels(color: string, halo: string): StyleSpecification['layers'][0
   };
 }
 
-// ── Light / terrain style ─────────────────────────────────────────────────────
+// Light / terrain style
 export const lightMapStyle: StyleSpecification = {
   version: 8,
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
@@ -225,7 +226,7 @@ export const lightMapStyle: StyleSpecification = {
   ],
 };
 
-// ── Dark style ────────────────────────────────────────────────────────────────
+// Dark style
 export const mapStyle: StyleSpecification = {
   version: 8,
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',

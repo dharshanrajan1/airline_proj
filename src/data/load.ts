@@ -7,11 +7,12 @@ export function useLoadData() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      const base = import.meta.env.BASE_URL;
       const [airports, airlines, routes, airlineHubs] = await Promise.all([
-        fetch('/data/airports.json').then((r) => r.json()),
-        fetch('/data/airlines.json').then((r) => r.json()),
-        fetch('/data/routes.json').then((r) => r.json()),
-        fetch('/data/airlineHubs.json').then((r) => r.json()),
+        fetch(`${base}data/airports.json`).then((r) => r.json()),
+        fetch(`${base}data/airlines.json`).then((r) => r.json()),
+        fetch(`${base}data/routes.json`).then((r) => r.json()),
+        fetch(`${base}data/airlineHubs.json`).then((r) => r.json()),
       ]);
       if (cancelled) return;
       setData({ airports, airlines, routes, airlineHubs } as Dataset);

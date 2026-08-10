@@ -1,3 +1,4 @@
+// Merges OpenFlights data with AeroDataBox and UA wiki overlays into public dataset JSONs.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,7 +10,7 @@ const AIRPORTS_URL = 'https://raw.githubusercontent.com/jpatokal/openflights/mas
 const AIRLINES_URL = 'https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat';
 const ROUTES_URL = 'https://raw.githubusercontent.com/jpatokal/openflights/master/data/routes.dat';
 
-// OpenFlights uses CSV with double-quoted strings and \N for null.
+// OpenFlights CSV parser (handles \N nulls)
 function parseCSVLine(line: string): string[] {
   const out: string[] = [];
   let cur = '';
@@ -49,7 +50,7 @@ type Airline = { iata: string; name: string; country: string; logoUrl?: string }
 
 const LOGO_MANIFEST = 'https://data.jsdelivr.com/v1/package/gh/urbullet/iata-airelines-logos@master/flat';
 const LOGO_BASE = 'https://cdn.jsdelivr.net/gh/urbullet/iata-airelines-logos@master/scripts/airlines-logos';
-// urbullet repo serves a generic placeholder PNG for unknown IATAs; placeholder is always exactly this size.
+// Skip generic placeholder logo
 const PLACEHOLDER_SIZE = 8714;
 
 async function fetchLogoManifest(): Promise<Set<string>> {
@@ -151,10 +152,7 @@ async function main() {
   const coveredOrigins = new Set<string>();
   if (existsSync(adbPath)) {
     adb = JSON.parse(readFileSync(adbPath, 'utf8')) as AeroDataBoxFile;
-    // Only treat an airport as "covered" if it actually has outbound ADB routes.
-    // Airports that were crawled but returned empty schedules (failed window, off-peak
-    // slot, or API gap) should fall back to OpenFlights rather than silently showing
-    // zero routes — the `covered` array can include such empty-crawl airports.
+    // Only mark origins with actual ADB routes as covered (empty crawls fall back to OpenFlights)
     for (const key of Object.keys(adb.routes)) coveredOrigins.add(key.split('|')[0]);
     console.log(`  AeroDataBox overlay: ${adb.covered.length} crawled, ${coveredOrigins.size} with routes, ${Object.keys(adb.routes).length} route pairs`);
   } else {
@@ -165,7 +163,7 @@ async function main() {
   const usedAirports = new Set<string>();
   const usedAirlines = new Set<string>();
 
-  // 1. OpenFlights routes — but only for origins NOT covered by AeroDataBox.
+  // 1. OpenFlights routes for non-covered origins.
   for (const [key, carriers] of routesByPair) {
     const [origin, dest] = key.split('|');
     if (coveredOrigins.has(origin)) continue;
@@ -200,10 +198,7 @@ async function main() {
     }
   }
 
-  // 3. Inferred reverse routes from live data.
-  //    For each live A→B where B was NOT crawled as an origin, append B→A as live (commercial
-  //    routes effectively always round-trip, so this is a safe inference and fixes the
-  //    "click LIH with UA filter → 0 routes" problem for non-covered destinations.)
+  // 3. Infer reverse live routes for non-crawled destinations (commercial routes are bidirectional).
   if (adb) {
     let inferred = 0;
     for (const [pairKey, info] of Object.entries(adb.routes)) {
@@ -232,10 +227,7 @@ async function main() {
     console.log(`  inferred reverse routes (live, dest not crawled): ${inferred}`);
   }
 
-  // Step 3b. Symmetric covered→covered live routes.
-  // Step 3 only infers reverses when dest is NOT covered. When both endpoints are covered,
-  // each airport's crawl windows may have captured only one direction (e.g. SYD has SYD→SFO
-  // but SFO's crawl missed SFO→SYD). Patch by adding any missing reverse for all live pairs.
+  // Step 3b. Patch missing reverse routes between covered origins when only one direction was crawled.
   if (adb) {
     let patched = 0;
     for (const [pairKey, info] of Object.entries(adb.routes)) {
@@ -263,7 +255,7 @@ async function main() {
     console.log(`  patched covered↔covered missing reverses: ${patched}`);
   }
 
-  // UA wiki overlay — patches routes that ADB crawl missed (seasonal, schedule gaps).
+  // UA wiki overlay
   const uaWikiPath = join(__dirname, '..', 'public', 'raw', 'ua-wiki-routes.json');
   if (existsSync(uaWikiPath)) {
     const uaWiki = JSON.parse(readFileSync(uaWikiPath, 'utf8')) as {

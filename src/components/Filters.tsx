@@ -132,7 +132,7 @@ export default function Filters() {
             value={airportQuery}
             onChange={(e) => { setAirportQuery(e.target.value); setAirportFocusIdx(-1); }}
             onFocus={() => setAirportOpen(true)}
-            onBlur={() => setTimeout(() => { setAirportOpen(false); setAirportFocusIdx(-1); }, 120)}
+            onBlur={() => { setAirportOpen(false); setAirportFocusIdx(-1); }}
             onKeyDown={handleAirportKeyDown}
             placeholder="Search airport"
             className="w-48 rounded-xl bg-transparent px-3 py-1.5 text-sm placeholder:text-white/30 focus:outline-none"
@@ -154,7 +154,8 @@ export default function Filters() {
               {airportResults.map((a, idx) => (
                 <li key={a.iata}>
                   <button
-                    onMouseDown={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault();
                       selectAirport(a.iata);
                       setAirportQuery('');
                       setAirportOpen(false);
@@ -190,7 +191,7 @@ export default function Filters() {
               setAirlineOpen(true);
               setAirlineQuery('');
             }}
-            onBlur={() => setTimeout(() => { setAirlineOpen(false); setAirlineFocusIdx(-1); }, 120)}
+            onBlur={() => { setAirlineOpen(false); setAirlineFocusIdx(-1); }}
             onKeyDown={handleAirlineKeyDown}
             placeholder="Filter by airline"
             className={`w-56 rounded-xl bg-transparent py-1.5 text-sm placeholder:text-white/30 focus:outline-none ${
@@ -214,7 +215,8 @@ export default function Filters() {
               {airlineResults.map((a, idx) => (
                 <li key={a.iata}>
                   <button
-                    onMouseDown={() => {
+                    onMouseDown={(e) => {
+                      e.preventDefault();
                       setAirlineFilter(a.iata);
                       setAirlineQuery('');
                       setAirlineOpen(false);

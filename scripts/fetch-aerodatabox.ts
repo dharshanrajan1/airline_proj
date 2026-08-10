@@ -1,17 +1,4 @@
-/**
- * Crawl AeroDataBox departures for the top N airports by route count.
- *
- * Two 12-hour windows per airport for full 24h coverage:
- *   morning  06:00 → 18:00  (catches day flights + most US-domestic)
- *   evening  18:00 → 06:00  (catches transatlantic, overnight, red-eyes)
- *
- * Already-crawled airports only get the missing window — no quota wasted.
- * Resumable: per-window state. Re-running skips completed windows.
- * 204 No Content → permanent no-data list (closed/restricted), never retried.
- * Prints API units remaining after each call so you can monitor quota.
- *
- * Output: public/raw/aerodatabox-routes.json (also written on periodic saves)
- */
+// Crawls AeroDataBox flight departure schedules for top airports to fetch live route data.
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,8 +27,7 @@ const WINDOWS = [
 
 type WindowId = typeof WINDOWS[number]['id'];
 
-// Permanently closed or restricted airports — AeroDataBox has no data for these.
-// 204 responses during crawling auto-add to this set and are persisted in state.
+// Permanently closed or restricted airports to skip
 const HARDCODED_SKIP = new Set([
   'TXL', // Berlin Tegel — closed Nov 2020
   'SXF', // Berlin Schönefeld — closed Oct 2020 (replaced by BER)
